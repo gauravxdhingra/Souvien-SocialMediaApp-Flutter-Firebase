@@ -82,7 +82,7 @@ class _HomeState extends State<Home> {
         ],
         controller: pageController,
         onPageChanged: onPageChanged,
-        physics: NeverScrollableScrollPhysics(),
+        // physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: CupertinoTabBar(
         currentIndex: pageIndex,
@@ -125,7 +125,11 @@ class _HomeState extends State<Home> {
   }
 
   onTap(int pageIndex) {
-    pageController.jumpToPage(pageIndex);
+    pageController.animateToPage(
+      pageIndex,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut
+    );
   }
 
   buildUnAuthScreen() {
