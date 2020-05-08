@@ -65,8 +65,8 @@ class _TimelineState extends State<Timeline> {
             //     children: users.map((user) => Text(user['username'])).toList(),
             //   ),
             // ),
-            FutureBuilder<QuerySnapshot>(
-          future: usersRef.getDocuments(),
+            StreamBuilder<QuerySnapshot>(
+          stream: usersRef.snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return circularProgress();
