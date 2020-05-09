@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttershare/pages/activity_feed.dart';
+import 'package:fluttershare/pages/create_account.dart';
 import 'package:fluttershare/pages/profile.dart';
 import 'package:fluttershare/pages/timeline.dart';
 import 'package:fluttershare/pages/upload.dart';
@@ -14,6 +16,7 @@ class Home extends StatefulWidget {
 }
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
+final usersRef = Firestore.instance.collection('users');
 
 class _HomeState extends State<Home> {
   bool isAuth = false;
@@ -53,7 +56,8 @@ class _HomeState extends State<Home> {
 
   handleSignIn(GoogleSignInAccount account) {
     if (account != null) {
-      print('$account');
+      // print('$account');
+      createUserInFirestore();
       setState(() {
         isAuth = true;
       });
@@ -62,6 +66,20 @@ class _HomeState extends State<Home> {
         isAuth = false;
       });
     }
+  }
+
+  createUserInFirestore() async {
+    // check if user exists in users collection in database(acc to their id)
+    final GoogleSignInAccount user = googleSignIn.currentUser;
+    final DocumentSnapshot doc = await usersRef.document(user.id).get();
+    if (!doc.exists) {
+      // if the user doesn't exist => create account page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => CreateAccount()),
+      );
+    }
+    // get username from create account, use it to make new users collection
   }
 
   onPageChanged(int pageIndex) {
@@ -125,11 +143,8 @@ class _HomeState extends State<Home> {
   }
 
   onTap(int pageIndex) {
-    pageController.animateToPage(
-      pageIndex,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut
-    );
+    pageController.animateToPage(pageIndex,
+        duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 
   buildUnAuthScreen() {

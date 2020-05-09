@@ -18,33 +18,34 @@ class _TimelineState extends State<Timeline> {
   void initState() {
     // getUsers();
     // getUsersById();
-    createUser();
-    updateUser();
-    deleteUser();
+    // createUser();
+    // updateUser();
+    // deleteUser();
     super.initState();
   }
 
-  createUser() async {
-    await usersRef.document("dseaeaz").setData({
-      'username': 'Shekhar',
-      'postsCount': 0,
-      'isAdmin': false,
-    });
-  }
+  // createUser() async {
+  //   await usersRef.document("dseaeaz").setData({
+  //     'username': 'Shekhar',
+  //     'postsCount': 0,
+  //     'isAdmin': false,
+  //   });
+  // }
 
-  updateUser() async {
-    final doc = await usersRef.document("dseaeaz").get();
-    if (doc.exists)
-      doc.reference.updateData({
-        'username': 'Sahil',
-        'postsCount': 0,
-        'isAdmin': false,
-      });
-  }
+  // updateUser() async {
+  //   final doc = await usersRef.document("dseaeaz").get();
+  //   if (doc.exists)
+  //     doc.reference.updateData({
+  //       'username': 'Sahil',
+  //       'postsCount': 0,
+  //       'isAdmin': false,
+  //     });
+  // }
 
-  deleteUser() async {
-    await usersRef.document("dseaeaz").delete();
-  }
+  // deleteUser() async {
+  //   final DocumentSnapshot doc = await usersRef.document("dseaeaz").get();
+  //   if (doc.exists) doc.reference.delete();
+  // }
 
   // getUsersById() async {
   //   final String id = 'ndEJE4shvolzf0r7kIUG';
@@ -83,28 +84,29 @@ class _TimelineState extends State<Timeline> {
   @override
   Widget build(context) {
     return Scaffold(
-        appBar: header(context, isAppTitle: true),
-        body:
-            //  Container(
-            //   child: ListView(
-            //     children: users.map((user) => Text(user['username'])).toList(),
-            //   ),
-            // ),
-            StreamBuilder<QuerySnapshot>(
-          stream: usersRef.snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return circularProgress();
-            }
-            final List<Text> children = snapshot.data.documents
-                .map((doc) => Text(doc['username']))
-                .toList();
-            return Container(
-              child: ListView(
-                children: children,
-              ),
-            );
-          },
-        ));
+      appBar: header(context, isAppTitle: true),
+      body: Text('Timeline'),
+      //  Container(
+      //   child: ListView(
+      //     children: users.map((user) => Text(user['username'])).toList(),
+      //   ),
+      // ),
+      //     StreamBuilder<QuerySnapshot>(
+      //   stream: usersRef.snapshots(),
+      //   builder: (context, snapshot) {
+      //     if (!snapshot.hasData) {
+      //       return circularProgress();
+      //     }
+      //     final List<Text> children = snapshot.data.documents
+      //         .map((doc) => Text(doc['username']))
+      //         .toList();
+      //     return Container(
+      //       child: ListView(
+      //         children: children,
+      //       ),
+      //     );
+      //   },
+      // ),
+    );
   }
 }
