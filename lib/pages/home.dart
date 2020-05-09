@@ -17,6 +17,7 @@ class Home extends StatefulWidget {
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final usersRef = Firestore.instance.collection('users');
+final DateTime timestamp = DateTime.now();
 
 class _HomeState extends State<Home> {
   bool isAuth = false;
@@ -74,10 +75,21 @@ class _HomeState extends State<Home> {
     final DocumentSnapshot doc = await usersRef.document(user.id).get();
     if (!doc.exists) {
       // if the user doesn't exist => create account page
-      Navigator.push(
+      final username = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => CreateAccount()),
+        MaterialPageRoute(
+          builder: (context) => CreateAccount(),
+        ),
       );
+      usersRef.document(user.id).setData({
+        'id': user.id,
+        'username': username,
+        'photoUrl': user.photoUrl,
+        'email': user.email,
+        'displayName': user.displayName,
+        'bio': '',
+        'timestamp': timestamp
+      });
     }
     // get username from create account, use it to make new users collection
   }
@@ -93,6 +105,10 @@ class _HomeState extends State<Home> {
       body: PageView(
         children: <Widget>[
           Timeline(),
+          // RaisedButton(
+          //   child: Text('Logout'),
+          //   onPressed: logout(),
+          // ),
           ActivityFeed(),
           Upload(),
           Search(),
