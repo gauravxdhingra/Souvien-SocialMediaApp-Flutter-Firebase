@@ -25,6 +25,8 @@ class _UploadState extends State<Upload> {
   File file;
   bool isUploading = false;
   String postId = Uuid().v4();
+  TextEditingController locationController = TextEditingController();
+  TextEditingController captionController = TextEditingController();
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -142,10 +144,35 @@ class _UploadState extends State<Upload> {
     });
     await compressImage();
     String mediaUrl = await uploadImage(file);
-    createPostInFirestore();
+    createPostInFirestore(
+      mediaUrl: mediaUrl,
+      location: locationController.text,
+      desc: captionController.text,
+    );
+    captionController.clear();
+    locationController.clear();
+    setState(() {
+      file = null;
+      isUploading = false;
+    });
   }
 
-  createPostInFirestore() {}
+  createPostInFirestore({String mediaUrl, String location, String desc}) {
+    postsRef
+        .document(widget.currentUser.id)
+        .collection('userPosts')
+        .document(postId)
+        .setData({
+      'postId': postId,
+      'ownerId': widget.currentUser.id,
+      'username': widget.currentUser.username,
+      'mediaUrl': mediaUrl,
+      'description': desc,
+      'location': location,
+      'timestamp': timestamp,
+      'likes': {}
+    });
+  }
 
   buildUploadForm() {
     return Scaffold(
@@ -208,6 +235,7 @@ class _UploadState extends State<Upload> {
             title: Container(
               width: 250,
               child: TextField(
+                controller: captionController,
                 decoration: InputDecoration(
                   hintText: 'Write a caption...',
                   border: InputBorder.none,
@@ -225,6 +253,7 @@ class _UploadState extends State<Upload> {
             title: Container(
               width: 250,
               child: TextField(
+                controller: locationController,
                 decoration: InputDecoration(
                   hintText: 'Where was this photo taken?',
                   border: InputBorder.none,
