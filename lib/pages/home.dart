@@ -8,7 +8,6 @@ import 'package:fluttershare/pages/profile.dart';
 import 'package:fluttershare/pages/timeline.dart';
 import 'package:fluttershare/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import 'search.dart';
 
 class Home extends StatefulWidget {
@@ -25,6 +24,7 @@ class _HomeState extends State<Home> {
   bool isAuth = false;
   int pageIndex = 0;
   PageController pageController;
+  bool userAvailable = false;
 
   @override
   void initState() {
@@ -97,7 +97,10 @@ class _HomeState extends State<Home> {
     }
     // get username from create account, use it to make new users collection
     currentUser = User.fromDocument(doc);
-    print(currentUser);
+    // print(currentUser);
+    setState(() {
+      userAvailable = true;
+    });
     print(currentUser.username);
   }
 
@@ -112,9 +115,14 @@ class _HomeState extends State<Home> {
       body: PageView(
         children: <Widget>[
           Timeline(),
-          // RaisedButton(
-          //   child: Text('Logout'),
-          //   onPressed: logout(),
+          // Container(
+          //   height: 50,
+          //   width: 200,
+          //   child: Center(
+          //       child: GestureDetector(
+          //     child: Text('Logout'),
+          //     onTap: logout(),
+          //   )),
           // ),
           ActivityFeed(),
           Upload(),
@@ -225,6 +233,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return isAuth ? buildAuthScreen() : buildUnAuthScreen();
+    return (isAuth && userAvailable) ? buildAuthScreen() : buildUnAuthScreen();
   }
 }
