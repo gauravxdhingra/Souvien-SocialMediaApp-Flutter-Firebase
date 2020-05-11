@@ -22,6 +22,7 @@ final postsRef = Firestore.instance.collection('posts');
 
 final DateTime timestamp = DateTime.now();
 User currentUser;
+
 final StorageReference storageRef = FirebaseStorage.instance.ref();
 
 class _HomeState extends State<Home> {
