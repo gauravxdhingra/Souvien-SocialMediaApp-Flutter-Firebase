@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttershare/models/user.dart';
-import 'package:fluttershare/pages/timeline.dart';
+import 'package:fluttershare/pages/edit_profile.dart';
+import 'package:fluttershare/pages/home.dart';
+import 'package:fluttershare/pages/timeline.dart' as timeline;
 import 'package:fluttershare/widgets/header.dart';
 import 'package:fluttershare/widgets/progress.dart';
 
@@ -15,6 +17,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  final String currentUserId = currentUser?.id;
   Column buildCountColumn(String label, int count) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -43,7 +46,48 @@ class _ProfileState extends State<Profile> {
   }
 
   buildProfileButton() {
-    return Text('Profile Button');
+    // return Text('Profile Button');
+    // viewing own profile => edit profile button
+    bool isProfileOwner = currentUserId == widget.profileId;
+    if (isProfileOwner)
+      return buildButton(text: 'Edit Profile', function: editProfile);
+  }
+
+  Container buildButton({String text, Function function}) {
+    return Container(
+      width: 250,
+      height: 27,
+      padding: EdgeInsets.only(top: 2),
+      child: FlatButton(
+        onPressed: function,
+        child: Container(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            border: Border.all(
+              color: Colors.blue,
+            ),
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  editProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfile(currentUserId: currentUserId),
+      ),
+    );
   }
 
   buildProfileHeader() {
