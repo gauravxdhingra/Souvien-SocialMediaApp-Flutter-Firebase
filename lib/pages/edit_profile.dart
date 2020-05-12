@@ -16,11 +16,16 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   bool isLoading = false;
   User user;
 
   TextEditingController displayNameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
+
+  bool _displayNameValid = true;
+  bool _bioValid = true;
 
   @override
   void initState() {
@@ -41,9 +46,84 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
+  updateProfileData() {
+    setState(() {
+      displayNameController.text.trim().length < 3 ||
+              displayNameController.text.isEmpty
+          ? _displayNameValid = false
+          : _displayNameValid = true;
+
+      bioController.text.trim().length > 160
+          ? _bioValid = false
+          : _bioValid = true;
+    });
+
+    if (_displayNameValid && _bioValid) {
+      usersRef.document(widget.currentUserId).updateData({
+        'displayName': displayNameController.text,
+        'bio': bioController.text
+      });
+      SnackBar snackbar = SnackBar(content: Text('Profile Updated!'));
+      _scaffoldKey.currentState.showSnackBar(snackbar); 
+    }
+  }
+
+  buildDisplayNameField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(
+            top: 12,
+          ),
+          child: Text(
+            'Display Name',
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+        ),
+        TextField(
+          controller: displayNameController,
+          decoration: InputDecoration(
+            errorText: _displayNameValid ? null : 'Display name too short!',
+            hintText: 'Update Display Name',
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildDisplayBioField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(
+            top: 12,
+          ),
+          child: Text(
+            'Bio',
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+        ),
+        TextField(
+          controller: bioController,
+          decoration: InputDecoration(
+            errorText: _bioValid ? null : 'Bio too long!',
+            hintText: 'Update Bio',
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
@@ -94,7 +174,7 @@ class _EditProfileState extends State<EditProfile> {
                         ),
                       ),
                       RaisedButton(
-                        onPressed: () => print('updated'),
+                        onPressed: updateProfileData,
                         child: Text(
                           'Update Profile',
                           style: TextStyle(
@@ -126,56 +206,6 @@ class _EditProfileState extends State<EditProfile> {
                 )
               ],
             ),
-    );
-  }
-
-  buildDisplayNameField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(
-            top: 12,
-          ),
-          child: Text(
-            'Display Name',
-            style: TextStyle(
-              color: Colors.grey,
-            ),
-          ),
-        ),
-        TextField(
-          controller: displayNameController,
-          decoration: InputDecoration(
-            hintText: 'Update Display Name',
-          ),
-        ),
-      ],
-    );
-  }
-
-  buildDisplayBioField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(
-            top: 12,
-          ),
-          child: Text(
-            'Bio',
-            style: TextStyle(
-              color: Colors.grey,
-            ),
-          ),
-        ),
-        TextField(
-          controller: bioController,
-          decoration: InputDecoration(
-            hintText: 'Update Bio',
-          ),
-        ),
-      ],
     );
   }
 }
