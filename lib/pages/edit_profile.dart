@@ -64,7 +64,7 @@ class _EditProfileState extends State<EditProfile> {
         'bio': bioController.text
       });
       SnackBar snackbar = SnackBar(content: Text('Profile Updated!'));
-      _scaffoldKey.currentState.showSnackBar(snackbar); 
+      _scaffoldKey.currentState.showSnackBar(snackbar);
     }
   }
 
@@ -117,6 +117,16 @@ class _EditProfileState extends State<EditProfile> {
           ),
         ),
       ],
+    );
+  }
+
+  logout() async {
+    await googleSignIn.signOut();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Home(),
+      ),
     );
   }
 
@@ -187,7 +197,7 @@ class _EditProfileState extends State<EditProfile> {
                       Padding(
                         padding: EdgeInsets.all(16),
                         child: FlatButton.icon(
-                          onPressed: () => print('logout'),
+                          onPressed: logout,
                           icon: Icon(
                             Icons.cancel,
                             color: Colors.red,
