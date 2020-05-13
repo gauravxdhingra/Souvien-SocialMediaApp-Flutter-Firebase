@@ -21,6 +21,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
 
+  String postOrientation = "grid";
   bool isLoading = false;
   int postsCount = 0;
   List<Post> posts = [];
@@ -209,21 +210,55 @@ class _ProfileState extends State<Profile> {
     // return Column(
     //   children: posts,
     // );
-    List<GridTile> gridTiles = [];
-    posts.forEach((post) {
-      gridTiles.add(GridTile(
-          child: PostTile(
-        post: post,
-      )));
+    if (postOrientation == 'grid') {
+      List<GridTile> gridTiles = [];
+      posts.forEach((post) {
+        gridTiles.add(GridTile(
+            child: PostTile(
+          post: post,
+        )));
+      });
+      return GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 1,
+        mainAxisSpacing: 1.5,
+        crossAxisSpacing: 1.5,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: gridTiles,
+      );
+    }
+    if (postOrientation == 'list')
+      return Column(
+        children: posts,
+      );
+  }
+
+  setPostsOrientation(String postOrientation) {
+    setState(() {
+      this.postOrientation = postOrientation;
     });
-    return GridView.count(
-      crossAxisCount: 3,
-      childAspectRatio: 1,
-      mainAxisSpacing: 1.5,
-      crossAxisSpacing: 1.5,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      children: gridTiles,
+  }
+
+  buildTogglePostOrientation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(Icons.grid_on),
+          onPressed: () => setPostsOrientation('grid'),
+          color: postOrientation == 'grid'
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
+        ),
+        IconButton(
+          icon: Icon(Icons.list),
+          onPressed: () => setPostsOrientation('list'),
+          color: postOrientation == 'list'
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
+        ),
+      ],
     );
   }
 
@@ -234,6 +269,8 @@ class _ProfileState extends State<Profile> {
       body: ListView(
         children: <Widget>[
           buildProfileHeader(),
+          Divider(),
+          buildTogglePostOrientation(),
           Divider(
             height: 0,
           ),
