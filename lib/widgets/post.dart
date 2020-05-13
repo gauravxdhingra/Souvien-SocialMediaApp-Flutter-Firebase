@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttershare/models/user.dart';
+import 'package:fluttershare/pages/comments.dart';
 import 'package:fluttershare/pages/home.dart';
 import 'package:fluttershare/widgets/custom_image.dart';
 import 'package:fluttershare/widgets/progress.dart';
@@ -181,7 +182,7 @@ class _PostState extends State<Post> {
                   ),
                   tween: Tween(
                     begin: 0.8,
-                    end: 1.4,
+                    end: 1.2,
                   ),
                   curve: Curves.elasticOut,
                   cycles: 0,
@@ -238,7 +239,12 @@ class _PostState extends State<Post> {
                 size: 28,
                 color: Colors.blue[900],
               ),
-              onTap: () => print('Showing Comments'),
+              onTap: () => showComments(
+                context,
+                postId: postId,
+                onwerId: ownerId,
+                mediaUrl: mediaUrl,
+              ),
             ),
           ],
         ),
@@ -290,4 +296,19 @@ class _PostState extends State<Post> {
       ],
     );
   }
+}
+
+showComments(
+  BuildContext context, {
+  String postId,
+  String onwerId,
+  String mediaUrl,
+}) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) {
+    return Comments(
+      postId: postId,
+      postOwnerId: onwerId,
+      postMediaUrl: mediaUrl,
+    );
+  }));
 }
