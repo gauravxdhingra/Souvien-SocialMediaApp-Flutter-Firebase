@@ -1,5 +1,4 @@
-import 'dart:html';
-
+// import 'dart:html';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +76,8 @@ class _PostState extends State<Post> {
   int likesCount;
   Map likes;
 
+  String username1;
+
   _PostState({
     this.postId,
     this.ownerId,
@@ -94,6 +95,7 @@ class _PostState extends State<Post> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return circularProgress();
         User user = User.fromDocument(snapshot.data);
+        username1 = user.username;
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(user.photoUrl),
@@ -116,6 +118,89 @@ class _PostState extends State<Post> {
           ),
         );
       },
+    );
+  }
+
+  buildPostImage() {
+    return GestureDetector(
+      onDoubleTap: () => print('Liking Post'),
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Image.network(mediaUrl),
+        ],
+      ),
+    );
+  }
+
+  buildPostFooter() {
+    return Column(
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(
+                top: 40,
+                left: 20,
+              ),
+            ),
+            GestureDetector(
+              child: Icon(
+                Icons.favorite_border,
+                size: 28,
+                color: Colors.pink,
+              ),
+              onTap: () => print('Liking Post'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                right: 20,
+              ),
+            ),
+            GestureDetector(
+              child: Icon(
+                Icons.chat,
+                size: 28,
+                color: Colors.blue[900],
+              ),
+              onTap: () => print('Showing Comments'),
+            ),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Text(
+                '$likesCount likes',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Text(
+                username,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text(desc),
+            )
+          ],
+        ),
+      ],
     );
   }
 
