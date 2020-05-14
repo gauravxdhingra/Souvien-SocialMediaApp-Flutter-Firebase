@@ -22,13 +22,14 @@ class _ActivityFeedState extends State<ActivityFeed> {
         .limit(50)
         .getDocuments();
 
+    List<ActivityFeedItem> feedItems = [];
     snapshot.documents.forEach((doc) {
       feedItems.add(ActivityFeedItem.fromDocument(doc));
     });
     // snapshot.documents.forEach((doc) {
     //   print('ActivityFeedItem: ${doc.data}');
     // });
-    return snapshot.documents;
+    return feedItems;
   }
 
   @override
@@ -43,7 +44,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
               return circularProgress();
             }
             return ListView(
-              children: feedItems,
+              children: snapshot.data,
             );
             // Text('Activity Feed');
           },
