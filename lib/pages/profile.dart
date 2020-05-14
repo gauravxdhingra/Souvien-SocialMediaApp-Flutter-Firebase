@@ -21,6 +21,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
+  bool isFollowing = false;
 
   String postOrientation = "grid";
   bool isLoading = false;
@@ -86,9 +87,95 @@ class _ProfileState extends State<Profile> {
     bool isProfileOwner = currentUserId == widget.profileId;
     if (isProfileOwner)
       return buildButton(text: 'Edit Profile', function: editProfile);
-    else {
-      return Text('button');
+    else if (isFollowing) {
+      return buildButton(
+        text: 'Unfollow',
+        function: handleUnfollowUser,
+      );
+    } else if (!isFollowing) {
+      return buildButton(
+        text: 'Follow',
+        function: handleFollowUser,
+      );
     }
+  }
+
+  handleUnfollowUser() {
+    setState(() {
+      isFollowing = flase;
+    });
+    followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .document(currentUserId)
+        .get()
+        .then(
+      (doc) {
+        if (doc.exists) {
+          doc.reference.delete();
+        }
+      },
+    );
+
+    // Add other user as following(Update your following ref)
+    followingRef
+        .document(currentUserId)
+        .collection('userFollowing')
+        .document(widget.profileId)
+        .get()
+        .then(
+      (doc) {
+        if (doc.exists) {
+          doc.reference.delete();
+        }
+      },
+    );
+
+    // Add activityFeedItem to notify new follower
+    activityFeedRef
+        .document(widget.profileId)
+        .collection('feedItem')
+        .document(currentUserId)
+        .get()
+        .then(
+      (doc) {
+        if (doc.exists) {
+          doc.reference.delete();
+        }
+      },
+    );
+  }
+
+  handleFollowUser() {
+    setState(() {
+      isFollowing = true;
+    });
+    followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .document(currentUserId)
+        .setData({});
+
+    // Add other user as following(Update your following ref)
+    followingRef
+        .document(currentUserId)
+        .collection('userFollowing')
+        .document(widget.profileId)
+        .setData({});
+
+    // Add activityFeedItem to notify new follower
+    activityFeedRef
+        .document(widget.profileId)
+        .collection('feedItem')
+        .document(currentUserId)
+        .setData({
+      'type': 'follow',
+      'ownerId': widget.profileId,
+      'username': currentUser.username,
+      'userId': currentUserId,
+      'userProfileImg': currentUser.photoUrl,
+      'timestamp': timestamp,
+    });
   }
 
   Container buildButton({String text, Function function}) {
@@ -102,15 +189,15 @@ class _ProfileState extends State<Profile> {
           child: Text(
             text,
             style: TextStyle(
-              color: Colors.white,
+              color: isFollowing ? Colors.black : Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: Colors.blue,
+            color: isFollowing ? Colors.white : Colors.blue,
             border: Border.all(
-              color: Colors.blue,
+              color: isFollowing ? Colors.grey : Colors.blue,
             ),
             borderRadius: BorderRadius.circular(5),
           ),
