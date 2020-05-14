@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttershare/pages/home.dart';
 import 'package:fluttershare/pages/post_screen.dart';
+import 'package:fluttershare/pages/profile.dart';
 import 'package:fluttershare/widgets/header.dart';
 import 'package:fluttershare/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -29,6 +30,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
     });
     // snapshot.documents.forEach((doc) {
     //   print('ActivityFeedItem: ${doc.data}');
+
     // });
     return feedItems;
   }
@@ -146,7 +148,7 @@ class ActivityFeedItem extends StatelessWidget {
         color: Colors.white54,
         child: ListTile(
           title: GestureDetector(
-            onTap: () => print('show profile'),
+            onTap: () => showProfile(context, profileId: userId),
             child: RichText(
               overflow: TextOverflow.ellipsis,
               text: TextSpan(
@@ -178,4 +180,13 @@ class ActivityFeedItem extends StatelessWidget {
       ),
     );
   }
+}
+
+showProfile(BuildContext context, {String profileId}) {
+  Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => Profile(
+                profileId: profileId,
+              )));
 }
