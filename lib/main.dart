@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'pages/home.dart';
 
 void main() {
+  // Firestore.instance.settings(  timestampsInSnapshotsEnabled:true )
   runApp(MyApp());
 }
 
