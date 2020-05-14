@@ -28,10 +28,47 @@ class _ProfileState extends State<Profile> {
   int postsCount = 0;
   List<Post> posts = [];
 
+  int followerCount = 0;
+  int followingCount = 0;
+
   @override
   void initState() {
-    super.initState();
     getProfilePosts();
+    getFollowers();
+    getFollowing();
+    checkIfFollowing();
+    super.initState();
+  }
+
+  getFollowers() async {
+    QuerySnapshot snapshot = await followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .getDocuments();
+    setState(() {
+      followerCount = snapshot.documents.length;
+    });
+  }
+
+  getFollowing() async {
+    QuerySnapshot snapshot = await followersRef
+        .document(widget.profileId)
+        .collection('userFollowing')
+        .getDocuments();
+    setState(() {
+      followerCount = snapshot.documents.length;
+    });
+  }
+
+  checkIfFollowing() async {
+    DocumentSnapshot doc = await followersRef
+        .document(widget.profileId)
+        .collection('userFollowers')
+        .document(currentUserId)
+        .get();
+    setState(() {
+      isFollowing = doc.exists;
+    });
   }
 
   getProfilePosts() async {
@@ -102,7 +139,7 @@ class _ProfileState extends State<Profile> {
 
   handleUnfollowUser() {
     setState(() {
-      isFollowing = flase;
+      isFollowing = false;
     });
     followersRef
         .document(widget.profileId)
@@ -240,8 +277,8 @@ class _ProfileState extends State<Profile> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             buildCountColumn('Posts', postsCount),
-                            buildCountColumn('Followers', 0),
-                            buildCountColumn('Following', 0),
+                            buildCountColumn('Followers', followerCount),
+                            buildCountColumn('Following', followingCount),
                           ],
                         ),
                         Row(
