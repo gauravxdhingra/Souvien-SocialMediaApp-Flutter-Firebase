@@ -28,10 +28,9 @@ class CommentsState extends State<Comments> {
   final String postMediaUrl;
 
   CommentsState({this.postId, this.postOwnerId, this.postMediaUrl});
-
   TextEditingController commentController = TextEditingController();
 
-  buildComments() {
+  StreamBuilder buildComments(context) {
     return StreamBuilder(
       stream: commentsRef
           .document(postId)
@@ -57,7 +56,7 @@ class CommentsState extends State<Comments> {
     commentsRef.document(postId).collection('comments').add({
       'username': currentUser.username,
       'comment': commentController.text,
-      'timeStamp': timestamp,
+      'timestamp': timestamp,
       'avatarPhotoUrl': currentUser.photoUrl,
       'userId': currentUser.id,
     });
@@ -72,7 +71,7 @@ class CommentsState extends State<Comments> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: buildComments(),
+            child: buildComments(context),
           ),
           Divider(),
           ListTile(
@@ -83,7 +82,7 @@ class CommentsState extends State<Comments> {
               ),
             ),
             trailing: OutlineButton(
-              onPressed: () => addComment(),
+              onPressed: addComment,
               borderSide: BorderSide.none,
               child: Text('Post'),
             ),
@@ -94,52 +93,50 @@ class CommentsState extends State<Comments> {
   }
 }
 
-@override
-Widget build(BuildContext context) {
-  return Column(
-    children: <Widget>[
-      ListTile(
-        title: Text(
-          comment,
-          style: TextStyle(color: Colors.blue),
-        ),
-        leading: CircleAvatar(
-          backgroundImage: CachedNetworkImageProvider(avatarUrl),
-        ),
-        subtitle: Text(
-          timeago.format(
-            timestamp.toDate(),
-          ),
-        ),
-      ),
-      Divider(),
-    ],
-  );
-}
-
 class Comment extends StatelessWidget {
   final String username;
   final String userId;
-  final String avatarUrl;
+  final String avatarPhotoUrl;
   final String comment;
   final Timestamp timestamp;
 
-  const Comment(
-      {Key key,
-      this.username,
+  Comment(
+      {this.username,
       this.userId,
-      this.avatarUrl,
+      this.avatarPhotoUrl,
       this.comment,
-      this.timestamp})
-      : super(key: key);
+      this.timestamp});
 
   factory Comment.fromDocument(DocumentSnapshot doc) {
     return Comment(
       username: doc['username'],
       userId: doc['userId'],
       comment: doc['comment'],
-      avatarUrl: doc['avatarUrl'],
+      avatarPhotoUrl: doc['avatarPhotoUrl'],
       timestamp: doc['timestamp'],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        ListTile(
+          title: Text(
+            comment,
+            // style: TextStyle(color: Colors.blue),
+          ),
+          leading: CircleAvatar(
+            backgroundImage: CachedNetworkImageProvider(avatarPhotoUrl),
+          ),
+          subtitle: Text(
+            timeago.format(
+              timestamp.toDate(),
+            ),
+          ),
+        ),
+        Divider(),
+      ],
     );
   }
 }
