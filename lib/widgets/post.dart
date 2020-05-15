@@ -192,7 +192,6 @@ class _PostState extends State<Post> {
     });
 
     // Then delete all comments
-
     QuerySnapshot commentsSnapshot = await commentsRef
         .document(postId)
         .collection('comments')
