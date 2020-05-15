@@ -38,7 +38,6 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    super.initState();
     pageController = PageController();
     googleSignIn.onCurrentUserChanged.listen(
       (account) {
@@ -57,6 +56,7 @@ class _HomeState extends State<Home> {
     }).catchError((err) {
       print('SilentSignInError $err');
     });
+    super.initState();
   }
 
   login() {

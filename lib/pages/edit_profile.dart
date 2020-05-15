@@ -29,8 +29,9 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   void initState() {
+     getUser();
     super.initState();
-    getUser();
+   
   }
 
   getUser() async {
