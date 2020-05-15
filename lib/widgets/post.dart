@@ -104,6 +104,8 @@ class _PostState extends State<Post> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return circularProgress();
         User user = User.fromDocument(snapshot.data);
+
+        bool isPostOwner = currentuserId == ownerId;
         username1 = user.username;
         return ListTile(
           leading: CircleAvatar(
@@ -121,13 +123,86 @@ class _PostState extends State<Post> {
             onTap: () => showProfile(context, profileId: user.id),
           ),
           subtitle: Text(location),
-          trailing: IconButton(
-            onPressed: () => print('Deleting post'),
-            icon: Icon(Icons.more_vert),
-          ),
+          trailing: isPostOwner
+              ? IconButton(
+                  onPressed: () => handleDeletePost(context),
+                  icon: Icon(Icons.more_vert),
+                )
+              : Text(''),
         );
       },
     );
+  }
+
+  handleDeletePost(parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text('Remove this post?'),
+            children: <Widget>[
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context);
+                  deletePost();
+                },
+                child: Text(
+                  'Delete',
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Cancel',
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+  deletePost() async {
+    postsRef
+        .document(ownerId)
+        .collection('userPosts')
+        .document(postId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+
+    // delete uploaded post
+    storageRef.child("post_$postId.jpg").delete();
+
+    // delete all activity feed notifications
+    QuerySnapshot activityFeedSnapshot = await activityFeedRef
+        .document(ownerId)
+        .collection('feedItems')
+        .where('postId', isEqualTo: postId)
+        .getDocuments();
+    activityFeedSnapshot.documents.forEach((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+
+    // Then delete all comments
+
+    QuerySnapshot commentsSnapshot = await commentsRef
+        .document(postId)
+        .collection('comments')
+        .getDocuments();
+
+    commentsSnapshot.documents.forEach((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
   }
 
   removeLikeFromActivityFeed() {
