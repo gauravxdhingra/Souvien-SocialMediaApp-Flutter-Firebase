@@ -67,10 +67,10 @@ class _HomeState extends State<Home> {
     googleSignIn.signOut();
   }
 
-  handleSignIn(GoogleSignInAccount account) {
+  handleSignIn(GoogleSignInAccount account) async {
     if (account != null) {
       // print('$account');
-      createUserInFirestore();
+      await createUserInFirestore();
       setState(() {
         isAuth = true;
       });
