@@ -37,7 +37,6 @@ exports.onCreateFollower = functions.firestore.
                 const postData = doc.data();
                 timelinePostsRef.doc(postId).set(postData);
             }
-
         });
     });
 
@@ -156,4 +155,66 @@ exports.onDeletePost = functions.firestore.
                 );
         });
 
+    })
+
+exports.onCreateActivityFeedItem = functions.firestore
+    .document('/feed/{userId}/feedItems/{activityFeedItem}')
+    .onCreate(async (snapshot, context) => {
+        console.log('Activity Feed Item Created', snapshot.data());
+
+        // 1.Get the user connected on the feed
+        const userId = context.params.userId;
+
+        const userRef = admin.firestore.doc(`users/${userId}`);
+        const doc = await userRef.get();
+
+        // 2. after having user, check if tey have a notification token, send notif if they have token
+        const androidNotificationToken = doc.data().androidNotificationToken;
+        const createdActivityFeedItem = snapshot.data();
+
+        if (androidNotificationToken) {
+            // send notification
+            sendNotification(androidNotificationToken, createdActivityFeedItem);
+        } else {
+            console.log('no token - cant send notif');
+        }
+        function sendNotification(androidNotificationToken, activityFeedItem) {
+            let body;
+
+            // switch body value, based on notification type
+            switch (activityFeedItem.type) {
+                case "comment":
+                    body = `${activityFeedItem.username} commented: ${activityFeedItem.commentData}`;
+                    break;
+                case "like":
+                    body = `${activityFeedItem.username} liked your post`;
+                    break;
+                case "follow":
+                    body = `${activityFeedItem.username} started following you`;
+                    break;
+                default:
+                    break;
+            }
+            // 4.   Create message for push notification
+
+            const message = {
+                notification: {
+                    body    // title
+                },
+                token: androidNotificationToken,
+                data: { recepient: userId }
+            }
+
+            // 5. send message with admin.messaging
+
+            admin
+                .messaging
+                .send(message)
+                .then(response => {
+                    // response is a message id string
+                    console.log('successfully sent message', response);
+                }).catch(error => {
+                    console.log('Error sending Message', error);
+                })
+        }
     })
