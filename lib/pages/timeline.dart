@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttershare/models/user.dart';
+import 'package:fluttershare/pages/search.dart';
 import 'package:fluttershare/widgets/header.dart';
 import 'package:fluttershare/widgets/post.dart';
 import '../widgets/progress.dart';
@@ -21,6 +22,7 @@ class Timeline extends StatefulWidget {
 class _TimelineState extends State<Timeline> {
   // List<dynamic> users = [];
   List<Post> posts;
+  List<String> followingList = [];
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _TimelineState extends State<Timeline> {
     // updateUser();
     // deleteUser();
     getTimeline();
+    getFollowing();
     super.initState();
   }
 
@@ -44,6 +47,17 @@ class _TimelineState extends State<Timeline> {
         snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
     setState(() {
       this.posts = posts;
+    });
+  }
+
+  getFollowing() async {
+    QuerySnapshot snapshot = await followingRef
+        .document(currentUser.id)
+        .collection('userFollowing')
+        .getDocuments();
+
+    setState(() {
+      followingList = snapshot.documents.map((doc) => doc.documentID).toList();
     });
   }
 
@@ -108,11 +122,76 @@ class _TimelineState extends State<Timeline> {
     if (posts == null) {
       return circularProgress();
     } else if (posts.isEmpty) {
-      return Text('No Posts Yet! Start Following People :-)');
+      return buildUsersToFollow();
     } else
       return ListView(
         children: posts,
       );
+  }
+
+  buildUsersToFollow() {
+    return StreamBuilder(
+      stream:
+          usersRef.orderBy("timestamp", descending: true).limit(30).snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return circularProgress();
+        }
+        List<UserResult> userResults = [];
+        snapshot.data.documents.forEach(
+          (doc) {
+            User user = User.fromDocument(doc);
+            final bool isAuthUser = currentUser.id == user.id;
+            final bool isFollowingUser = followingList.contains(user.id);
+            // remove auth user from recommended list
+
+            if (isAuthUser) {
+              return;
+            } else if (isFollowingUser) {
+              return;
+            } else {
+              UserResult userResult = UserResult(
+                user: user,
+              );
+              userResults.add(userResult);
+            }
+          },
+        );
+        return Container(
+          color: Theme.of(context).accentColor.withOpacity(0.2),
+          child: Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(
+                      Icons.person,
+                      color: Theme.of(context).primaryColor,
+                      size: 30,
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(
+                      'Users To Follow',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 30,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                children: userResults,
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
